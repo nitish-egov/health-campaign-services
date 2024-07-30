@@ -109,6 +109,7 @@ public class ProjectService {
         //Validate Update project request against projects fetched form database
         projectValidator.validateUpdateAgainstDB(project.getProjects(), projectsFromDB);
         projectEnrichment.enrichProjectOnUpdate(project, projectsFromDB);
+        // check if project start or end dates are changed then cascadically update its ancestor and descendant projects date based on a flag isEnableCascadingProjectDateUpdates as true
         checkAndEnrichCascadingProjectDates(project);
         log.info("Enriched with project Number, Ids and AuditDetails");
         producer.push(projectConfiguration.getUpdateProjectTopic(), project);

@@ -120,7 +120,7 @@ public class ProjectEnrichment {
         }
     }
 
-
+  // enrich project start and end date of ancestors and descendants
   public void enrichProjectCascadingDatesOnUpdate(Project project, Project projectFromDB)
   {
     enrichProjectStartAndEnDDateOFBothAncestorsAndDescendantsIfFoundAccordingly(project,
@@ -131,7 +131,9 @@ public class ProjectEnrichment {
       Project projectRequest, Project projectFromDB) {
     long startDate = projectRequest.getStartDate();
     long endDate = projectRequest.getEndDate();
+    // update descendant project dates same like the given project dates
     updateDescendantProjects(projectRequest, projectFromDB, startDate, endDate);
+    // update ancestor project dates like start date to be min(current project, ancestor project) and end date to be max(current,ancestor)
     updateAncestorProjects(projectRequest, projectFromDB, startDate, endDate);
   }
 
@@ -142,6 +144,7 @@ public class ProjectEnrichment {
     if (descendantProjectsFromDb != null) {
       for (Project descendant : descendantProjectsFromDb) {
         updateDescendantProjectDates(descendant, startDate, endDate);
+        // update cycle dates also in the same manner for descendant
         updateCycles(descendant, projectRequest, true);
         modifiedDescendantProjectsFromDb.add(descendant);
       }
@@ -157,9 +160,11 @@ public class ProjectEnrichment {
       for (Project ancestor : ancestorProjectsFromDb) {
         ancestor.setStartDate(Math.min(startDate, ancestor.getStartDate()));
         ancestor.setEndDate(Math.max(endDate, ancestor.getEndDate()));
+        // update cycle dates also in the same manner for descendant
         updateCycles(ancestor, projectRequest, false);
         modifiedAncestorProjectsFromDb.add(ancestor);
       }
+      // modifiedAncestorProjectsFromDb is a list of Projects and for pushing in topic updateProjectTopic
       pushAncestorProjects(modifiedAncestorProjectsFromDb);
     }
   }
